@@ -38,6 +38,9 @@ $routes->match(["get", "post"], 'pay-now-web', 'Home::payNowWeb');
 
 $routes->match(["get", "post"], 'checkout', 'Home::checkout');
 
+$routes->post('api-checkout', 'Home::payNowAndroid');
+
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing

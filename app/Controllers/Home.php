@@ -38,18 +38,25 @@ class Home extends BaseController
 	 * REST API PAYMENT INTEGRTION
 	*/
 
+	protected function calculateOrderAmount(array $items): int {
+		// Replace this constant with a calculation of the order's amount
+		// Calculate the order total on the server to prevent
+		// customers from directly manipulating the amount on the client
+		return 1400;
+	}
+
 	public function payNowAndroid(){
-		
+
 		\Stripe\Stripe::setApiKey($this->key);
 
 		header('Content-Type: application/json');
+
 		try {
 		// retrieve JSON from POST body
-		$json_str = file_get_contents('php://input');
-		$json_obj = json_decode($json_str);
+		$post = $this->request->getPost();
 
 		$paymentIntent = \Stripe\PaymentIntent::create([
-			'amount' => calculateOrderAmount($json_obj->items),
+			'amount' => $post['price'] * 100, //$this->calculateOrderAmount($post['price']),
 			'currency' => 'inr',
 		]);
 		$output = [
@@ -66,13 +73,6 @@ class Home extends BaseController
 
 		\Stripe\Stripe::setApiKey($this->key);
 
-		function calculateOrderAmount(array $items): int {
-			// Replace this constant with a calculation of the order's amount
-			// Calculate the order total on the server to prevent
-			// customers from directly manipulating the amount on the client
-			return 1400;
-		}
-
 		header('Content-Type: application/json');
 
 		try {
@@ -80,7 +80,7 @@ class Home extends BaseController
 		$json_str = file_get_contents('php://input');
 		$json_obj = json_decode($json_str);
 		$paymentIntent = \Stripe\PaymentIntent::create([
-			'amount' => calculateOrderAmount($json_obj->items),
+			'amount' => $this->calculateOrderAmount($json_obj->items),
 			'currency' => 'inr',
 		]);
 
