@@ -4,11 +4,95 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
+
+	/**
+	 * Collect payment
+	 */
+	protected function addCustomer($customerDetailsAry){
+        
+        $customer = new \Stripe\Customer();
+        
+        $customerDetails = $customer->create($customerDetailsAry);
+        
+        return $customerDetails;
+    }
+
+    protected function chargeAmountFromCard(array $details)
+    {
+        $customerDetailsAry = [
+            'email' => $details['email'],
+            'source' => $details['token']
+		];
+
+        $customerResult = $this->addCustomer($customerDetailsAry);
+
+        $charge = new \Stripe\Charge();
+
+        $cardDetailsAry = [
+            'customer' => $customerResult->id,
+            'amount' => $details['amount']*100 ,
+            'currency' => $details['currency_code'],
+            'description' => $details['item_name'],
+            'metadata' => [
+                'order_id' => $details['item_number']
+			],
+        ];
+
+
+        $result = $charge->create($cardDetailsAry);
+
+        return $result->jsonSerialize();
+    }
+
+	public function stripePayment(){
+
+		if (!empty($this->request->getPost("token"))) {
+		
+			$response = $this->chargeAmountFromCard($this->request->getPost());
+		
+			$amount = $stripeReresponsesponse["amount"] /100;
+		
+			$insert_data = [
+				$this->request->getPost("email"),
+				$this->request->getPost("item_number"),
+				$amount,
+				$response["currency"],
+				$response["balance_transaction"],
+				$response["status"],
+
+				json_encode($response)
+			];
+
+			echo "<pre>";
+			print_r($insert_data);
+			echo "</pre>";
+			/*$query = "INSERT INTO tbl_payment (email, item_number, amount, currency_code, txn_id, payment_status, payment_response) values (?, ?, ?, ?, ?, ?, ?)";
+			$id = $dbController->insert($query, $param_type, $param_value_array);
+		
+			if ($stripeResponse['amount_refunded'] == 0 && empty($stripeResponse['failure_code']) && $stripeResponse['paid'] == 1 && $stripeResponse['captured'] == 1 && $stripeResponse['status'] == 'succeeded') {
+				$successMessage = "Stripe payment is completed successfully. The TXN ID is " . $stripeResponse["balance_transaction"];
+			}*/
+		}
+
+	}
+	/**
+	 * Collect Payment
+	 */
+
+	public function payWithStripe(){
+
+		$data = [
+			"stripe_publisher_key "	=>	$this->publisher_key,
+		];
+
+		return view("checkout-2", $data);
+	}
+
 	public function index()
 	{
 		// Set your secret key. Remember to switch to your live secret key in production.
 		// See your keys here: https://dashboard.stripe.com/apikeys
-		\Stripe\Stripe::setApiKey($this->key);
+		\Stripe\Stripe::setApiKey($this->secret_key);
 
 		$customer = \Stripe\PaymentIntent::create([
 			'description' => 'Software development services',
@@ -47,7 +131,7 @@ class Home extends BaseController
 
 	public function payNowAndroid(){
 
-		\Stripe\Stripe::setApiKey($this->key);
+		\Stripe\Stripe::setApiKey($this->secret_key);
 
 		header('Content-Type: application/json');
 
@@ -71,7 +155,7 @@ class Home extends BaseController
 
 	public function payNowWeb(){
 
-		\Stripe\Stripe::setApiKey($this->key);
+		\Stripe\Stripe::setApiKey($this->secret_key);
 
 		header('Content-Type: application/json');
 
@@ -98,7 +182,7 @@ class Home extends BaseController
 	public function checkout(){
 
 		$data = [
-			"key"	=>	$this->key,
+			"key"	=>	$this->secret_key,
 		];
 
 		return view("checkout", $data);
@@ -107,7 +191,7 @@ class Home extends BaseController
 
 	public function createAccountLink(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$account_links = \Stripe\AccountLink::create([
 			'account' => 'acct_1032D82eZvKYlo2C',
@@ -120,7 +204,7 @@ class Home extends BaseController
 
 	public function createClientAccount(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->create([
 			'type' => 'custom',
@@ -150,7 +234,7 @@ class Home extends BaseController
 
 	public function retrieveAccount(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->retrieve(
 			'acct_1032D82eZvKYlo2C',
@@ -161,7 +245,7 @@ class Home extends BaseController
 
 	public function createClient(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->create([
 			'type' => 'custom',
@@ -177,7 +261,7 @@ class Home extends BaseController
 
 	public function updateAccount(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->update(
 		'acct_1032D82eZvKYlo2C',
@@ -187,7 +271,7 @@ class Home extends BaseController
 
 	public function deleteClientAccount(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->delete(
 			'acct_1032D82eZvKYlo2C',
@@ -198,7 +282,7 @@ class Home extends BaseController
 
 	public function rejectClientAccount(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->reject(
 			'acct_1032D82eZvKYlo2C',
@@ -209,7 +293,7 @@ class Home extends BaseController
 
 	public function viewClient(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->all(['limit' => 3]);
 	}
@@ -217,7 +301,7 @@ class Home extends BaseController
 
 	public function createLoginLink(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->createLoginLink(
 		'acct_1032D82eZvKYlo2C',
@@ -229,7 +313,7 @@ class Home extends BaseController
 
 	public function serverSide(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$payment_intent = \Stripe\PaymentIntent::create([
 		'payment_method_types' => ['card'],
@@ -248,7 +332,7 @@ class Home extends BaseController
 
 	public function fulfilment(){
 
-		$stripe = new \Stripe\StripeClient($this->key);
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		// If you are testing your webhook locally with the Stripe CLI you
 		// can find the endpoint's secret by running `stripe listen`

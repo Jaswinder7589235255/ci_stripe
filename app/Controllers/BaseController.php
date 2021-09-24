@@ -46,7 +46,12 @@ class BaseController extends Controller
 		//--------------------------------------------------------------------
 		// E.g.: $this->session = \Config\Services::session();
 
-		$this->key = "sk_test_51Inyo4SDMJp5hpGQzUGfILBmNnq2nXYcsexJ6YVATFhaiRErmuEWpFbErlK9iAZXURZpVp0EFYFMNtNzq00WYy2700r2LxFfua";
+		$this->secret_key = "sk_test_51Inyo4SDMJp5hpGQzUGfILBmNnq2nXYcsexJ6YVATFhaiRErmuEWpFbErlK9iAZXURZpVp0EFYFMNtNzq00WYy2700r2LxFfua";
+		$this->publisher_key = "pk_test_51Inyo4SDMJp5hpGQcuYCqNar2L1CB8SCw1SchVwIySgi6oJfG4ZozRjD104HvYeqR2euVXTRcecP78bLnVakkXCb00l4Ds7uc9";
+
+		$this->stripeService = new \Stripe\Stripe();
+        $this->stripeService->setVerifySslCerts(false);
+        $this->stripeService->setApiKey($this->secret_key);
 
 		$this->app = new \CodeIgniter\HTTP\CURLRequest(
 				new \Config\App(),

@@ -305,16 +305,16 @@
 
         // Show a spinner on payment submission
         var loading = function(isLoading) {
-        if (isLoading) {
-            // Disable the button and show a spinner
-            document.querySelector("button").disabled = true;
-            document.querySelector("#spinner").classList.remove("hidden");
-            document.querySelector("#button-text").classList.add("hidden");
-        } else {
-            document.querySelector("button").disabled = false;
-            document.querySelector("#spinner").classList.add("hidden");
-            document.querySelector("#button-text").classList.remove("hidden");
-        }
+            if (isLoading) {
+                // Disable the button and show a spinner
+                document.querySelector("button").disabled = true;
+                document.querySelector("#spinner").classList.remove("hidden");
+                document.querySelector("#button-text").classList.add("hidden");
+            } else {
+                document.querySelector("button").disabled = false;
+                document.querySelector("#spinner").classList.add("hidden");
+                document.querySelector("#button-text").classList.remove("hidden");
+            }
         };
 
     </script>

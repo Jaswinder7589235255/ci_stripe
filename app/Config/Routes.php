@@ -41,6 +41,15 @@ $routes->match(["get", "post"], 'checkout', 'Home::checkout');
 $routes->post('api-checkout', 'Home::payNowAndroid');
 
 
+/**
+ * 
+ * Stripe Payment
+ */
+$routes->post('payment-success', 'Home::stripePayment');
+
+$routes->get('pay-with-stripe', 'Home::payWithStripe');
+
+
 /*
  * --------------------------------------------------------------------
  * Additional Routing
