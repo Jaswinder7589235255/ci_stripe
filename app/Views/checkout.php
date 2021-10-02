@@ -203,17 +203,18 @@
 
         // The items the customer wants to buy
         var purchase = {
-        items: [{ id: "xl-tshirt" }]
+            items: [{ id: "xl-tshirt" }]
         };
 
         // Disable the button until we have Stripe set up on the page
         document.querySelector("button").disabled = true;
+
         fetch("<?=base_url("pay-now-web")?>", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(purchase)
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(purchase)
         })
         .then(function(result) {
             return result.json();
@@ -243,16 +244,16 @@
             card.mount("#card-element");
 
             card.on("change", function (event) {
-            // Disable the Pay button if there are no card details in the Element
-            document.querySelector("button").disabled = event.empty;
-            document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
+                // Disable the Pay button if there are no card details in the Element
+                document.querySelector("button").disabled = event.empty;
+                document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
             });
 
             var form = document.getElementById("payment-form");
             form.addEventListener("submit", function(event) {
-            event.preventDefault();
-            // Complete payment when the submit button is clicked
-            payWithCard(stripe, card, data.clientSecret);
+                event.preventDefault();
+                // Complete payment when the submit button is clicked
+                payWithCard(stripe, card, data.clientSecret);
             });
         });
 

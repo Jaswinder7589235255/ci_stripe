@@ -4,19 +4,9 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-
 	/**
-	 * Collect payment
+	 * Working api
 	 */
-	protected function addCustomer($customerDetailsAry){
-        
-        $customer = new \Stripe\Customer();
-        
-        $customerDetails = $customer->create($customerDetailsAry);
-        
-        return $customerDetails;
-    }
-
     protected function chargeAmountFromCard(array $details)
     {
         $customerDetailsAry = [
@@ -30,7 +20,7 @@ class Home extends BaseController
 
         $cardDetailsAry = [
             'customer' => $customerResult->id,
-            'amount' => $details['amount']*100 ,
+            'amount' => $details['amount'] * 100 ,
             'currency' => $details['currency_code'],
             'description' => $details['item_name'],
             'metadata' => [
@@ -44,49 +34,47 @@ class Home extends BaseController
         return $result->jsonSerialize();
     }
 
-	public function stripePayment(){
+	public function payWithStripe(){
 
-		if (!empty($this->request->getPost("token"))) {
-		
-			$response = $this->chargeAmountFromCard($this->request->getPost());
-		
-			$amount = $stripeReresponsesponse["amount"] /100;
-		
-			$insert_data = [
-				$this->request->getPost("email"),
-				$this->request->getPost("item_number"),
-				$amount,
-				$response["currency"],
-				$response["balance_transaction"],
-				$response["status"],
+		$stripe = new \Stripe\StripeClient($this->secret_key);
 
-				json_encode($response)
-			];
+		$data = $stripe->tokens->create([
+			'card' => [
+			'number' => '4242424242424242',
+			'exp_month' => 9,
+			'exp_year' => 2022,
+			'cvc' => '314',
+			],
+		]);
 
-			echo "<pre>";
-			print_r($insert_data);
-			echo "</pre>";
-			/*$query = "INSERT INTO tbl_payment (email, item_number, amount, currency_code, txn_id, payment_status, payment_response) values (?, ?, ?, ?, ?, ?, ?)";
-			$id = $dbController->insert($query, $param_type, $param_value_array);
+		/*echo $data->id;
+		echo "<pre>";
+		print_r($data);*/
+
+
+		$response = $this->chargeAmountFromCard(["email" => "jas@gmail.com", "token" => $data->id, "amount" => 1000, "currency_code" => "inr", "item_name" => "Web development test", "item_number" => "AJ00125"]);
 		
-			if ($stripeResponse['amount_refunded'] == 0 && empty($stripeResponse['failure_code']) && $stripeResponse['paid'] == 1 && $stripeResponse['captured'] == 1 && $stripeResponse['status'] == 'succeeded') {
-				$successMessage = "Stripe payment is completed successfully. The TXN ID is " . $stripeResponse["balance_transaction"];
-			}*/
-		}
+		$amount = $response["amount"] / 100;
+		
+		$insert_data = [
+			"jas@gmail.com",
+			"AJ00125",
+			$amount,
+			$response["currency"],
+			$response["balance_transaction"],
+			$response["status"],
+			json_encode($response)
+		];
+		
+		echo "<pre>";
+		print_r($insert_data);
+		echo "</pre>";
 
 	}
 	/**
-	 * Collect Payment
+	 * Working api
 	 */
 
-	public function payWithStripe(){
-
-		$data = [
-			"stripe_publisher_key "	=>	$this->publisher_key,
-		];
-
-		return view("checkout-2", $data);
-	}
 
 	public function index()
 	{
@@ -118,41 +106,8 @@ class Home extends BaseController
 	}
 
 	/**
-	 * 
-	 * REST API PAYMENT INTEGRTION
-	*/
-
-	protected function calculateOrderAmount(array $items): int {
-		// Replace this constant with a calculation of the order's amount
-		// Calculate the order total on the server to prevent
-		// customers from directly manipulating the amount on the client
-		return 1400;
-	}
-
-	public function payNowAndroid(){
-
-		\Stripe\Stripe::setApiKey($this->secret_key);
-
-		header('Content-Type: application/json');
-
-		try {
-		// retrieve JSON from POST body
-		$post = $this->request->getPost();
-
-		$paymentIntent = \Stripe\PaymentIntent::create([
-			'amount' => $post['price'] * 100, //$this->calculateOrderAmount($post['price']),
-			'currency' => 'inr',
-		]);
-		$output = [
-			'clientSecret' => $paymentIntent->client_secret,
-		];
-		echo json_encode($output);
-		} catch (Error $e) {
-		http_response_code(500);
-		echo json_encode(['error' => $e->getMessage()]);
-		}
-	}
-
+	 * WORKING WEB
+	 */
 	public function payNowWeb(){
 
 		\Stripe\Stripe::setApiKey($this->secret_key);
@@ -187,7 +142,11 @@ class Home extends BaseController
 
 		return view("checkout", $data);
 	}
+	/**
+	 * WORKING WEB
+	 */
 
+	 
 
 	public function createAccountLink(){
 
@@ -248,15 +207,14 @@ class Home extends BaseController
 		$stripe = new \Stripe\StripeClient($this->secret_key);
 
 		$stripe->accounts->create([
-			'type' => 'custom',
-			'country' => 'US',
-			'email' => 'jenny.rosen@example.com',
-			'capabilities' => [
-			'card_payments' => ['requested' => true],
-			'transfers' => ['requested' => true],
+				'type' => 'custom',
+				'country' => 'US',
+				'email' => 'jenny.rosen@example.com',
+				'capabilities' => [
+				'card_payments' => ['requested' => true],
+				'transfers' => ['requested' => true],
 			],
 		]);
-
 	}
 
 	public function updateAccount(){

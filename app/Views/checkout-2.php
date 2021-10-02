@@ -77,7 +77,7 @@
     <!-- <script src="vendor/jquery/jquery-3.2.1.min.js"
         type="text/javascript"></script> -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
+    <script>/*
 function cardValidation () {
     var valid = true;
     var name = $('#name').val();
@@ -114,7 +114,7 @@ function cardValidation () {
     }
 
     return valid;
-}
+}*/
 //set your publishable key
 Stripe.setPublishableKey("<?=$stripe_publisher_key?>");
 
@@ -135,7 +135,17 @@ function stripeResponseHandler(status, response) {
         $("#frmStripePayment").submit();
     }
 }
-function stripePay(e) {
+
+$("#submit-btn").hide();
+$( "#loader" ).css("display", "inline-block");
+Stripe.createToken({
+    number: <?=$card_number?>,
+    cvc: <?=$cvc?>,
+    exp_month: <?=$exp_month?>,
+    exp_year: <?=$exp_year?>
+}, stripeResponseHandler);
+
+/*function stripePay(e) {
     e.preventDefault();
     var valid = cardValidation();
 
@@ -152,7 +162,7 @@ function stripePay(e) {
         //submit from callback
         return false;
     }
-}
+}*/
 </script>
 </body>
 </html>

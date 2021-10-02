@@ -47,8 +47,22 @@ $routes->post('api-checkout', 'Home::payNowAndroid');
  */
 $routes->post('payment-success', 'Home::stripePayment');
 
-$routes->get('pay-with-stripe', 'Home::payWithStripe');
+$routes->post('pay-with-stripe', 'Home::payWithStripe');
 
+
+
+
+/**
+ * 
+ * StripeController
+ */
+
+ $routes->group("stripe", function($routes){
+	 // Hit post request
+	 $routes->match(["get", "post"], "get-secret-key", "StripeController::getSecretKey");
+
+	 $routes->match(["get", "post"], "get-client-secret", "StripeController::getClientSecret");
+ });
 
 /*
  * --------------------------------------------------------------------
